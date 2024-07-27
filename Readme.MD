@@ -37,7 +37,7 @@
 │       └── config.toml        # Локальная конфигурация Cargo
 ├── c_project                  # Код на C
 │   ├── main.c                 # Основной файл
-│   └── business_logic.c       # Бизнес-логика
+│   └── user_task.c       # Бизнес-логика
 ├── python_project             # Код на Python для генерации C-кода
 │   ├── main.py                # Основной файл
 │   └── templates              # Шаблоны для генерации C-кода
@@ -97,13 +97,13 @@
 extern crate panic_halt;
 
 extern "C" {
-    fn business_logic();
+    fn user_task();
 }
 
 #[cortex_m_rt::entry]
 fn main() -> ! {
     unsafe {
-        business_logic();
+        user_task();
     }
 
     loop {}
@@ -115,9 +115,8 @@ fn main() -> ! {
 ```c
 #include <stdio.h>
 
-void business_logic() {
-    // Ваш бизнес-код на C
-    printf("Hello from C business logic!\n");
+void user_task() {
+    // todo
 }
 ```
 
@@ -128,12 +127,11 @@ def generate_c_code():
     template = """
     #include <stdio.h>
 
-    void business_logic() {
-        // Generated business logic
-        printf("Hello from generated C business logic!\n");
+    void user_task() {
+        // todo
     }
     """
-    with open('c_project/business_logic.c', 'w') as f:
+    with open('c_project/user_task.c', 'w') as f:
         f.write(template)
 
 if __name__ == "__main__":
