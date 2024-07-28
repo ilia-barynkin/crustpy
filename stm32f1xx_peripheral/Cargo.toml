@@ -1,0 +1,16 @@
+[package]
+name = "stm32f103"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+critical-section = { version = "1.0", optional = true }
+cortex-m-rt = { version = "0.6.13", optional = true }
+vcell = "0.1.2"
+
+[dependencies.cortex-m]
+version = "0.7.7"
+features = ["critical-section-single-core"]
+
+[features]
+rt = ["cortex-m-rt/device"]
