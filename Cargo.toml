@@ -6,6 +6,11 @@ edition = "2021"
 [dependencies]
 cortex-m = "0.7.7"
 cortex-m-rt = "0.7.3"
-cortex-m-rtic = "1.1.4"
 panic-halt = "0.2.0"
 serde = "1.0.204"
+vcell = "0.1.2"
+critical-section = { version = "1.0", optional = true }
+
+
+[features]
+rt = ["cortex-m-rt/device"]
