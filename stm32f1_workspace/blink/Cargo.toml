@@ -1,6 +1,7 @@
 [package]
-name = "old_project_lib"
+name = "blink"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+stm32f1_api ={ path = "../stm32f1_api" }
