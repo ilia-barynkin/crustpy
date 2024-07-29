@@ -1,17 +1,24 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
         {
-            "type": "lldb",
+            "name": "Cortex Debug",
+            "type": "cortex-debug",
             "request": "launch",
-            "name": "Debug",
-            "program": "${workspaceFolder}/<executable file>",
-            "args": [],
-            "cwd": "${workspaceFolder}"
+            "executable": "${workspaceRoot}/rust-blink/target/thumbv7m-none-eabi/debug/rust-blink",
+            "servertype": "openocd",
+            "gdbPath": "arm-none-eabi-gdb",
+            "cwd": "${workspaceRoot}/rust-blink",
+            "device": "STM32F103C8T6",
+            "configFiles": [
+                "interface/jlink.cfg",
+                "${workspaceRoot}/rust-blink/openocd.cfg"
+            ],
+            "searchDir": [
+                "/usr/share/openocd/scripts"
+            ],
+            "svdFile": "${workspaceRoot}/svd/STM32F103.svd",
+            "runToEntryPoint": "main"
         }
     ]
 }
