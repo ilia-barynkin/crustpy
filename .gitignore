@@ -1,4 +1,5 @@
-/target
 /py/.venv
 .cargo
 /misc
+**/target
+/py/crustpy-venv

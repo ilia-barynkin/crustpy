@@ -5,39 +5,48 @@ use cortex_m_rt::entry;
 use panic_halt as _;
 
 use stm32f103::Peripherals;
-use cortex_m::peripheral::syst::SystClkSource;
-use cortex_m::peripheral::Peripherals as CortexPeripherals;
 
 #[entry]
 fn main() -> ! {
-    // Получаем доступ к периферийным устройствам
     let dp = Peripherals::take().unwrap();
-    let cp = CortexPeripherals::take().unwrap();
 
-    // Включаем тактирование GPIOC
-    let rcc = dp.rcc;
-    rcc.apb2enr().modify(|_, w| w.iopcen().set_bit());
+    // Настройка тактирования
+    let rcc = &dp.rcc;
+    rcc.apb2enr().modify(|_, w| w.iopaen().set_bit()); // Включаем тактирование GPIOA
+    rcc.apb1enr().modify(|_, w| w.tim2en().set_bit()); // Включаем тактирование TIM2
 
-    // Конфигурируем PC13 как выход
-    let gpioc = dp.gpioc;
-    unsafe {gpioc.crh().modify(|_, w| w.mode13().bits( 0b01 )); }
+    // Настройка GPIOA
+    let gpioa = &dp.gpioa;
+    gpioa.crl().modify(|_, w| unsafe {
+        w.mode0().bits(0b10) // Output mode, max speed 2 MHz
+         .cnf0().bits(0b10) // Alternate function output Push-pull
+    });
 
-    // Получаем доступ к системному таймеру
-    let mut syst = cp.SYST;
+    // Настройка TIM2 для генерации PWM
+    let tim2 = &dp.tim2;
 
-    // Устанавливаем источник тактирования для системного таймера
-    syst.set_clock_source(SystClkSource::Core);
+    // Сброс TIM2
+    rcc.apb1rstr().modify(|_, w| w.tim2rst().set_bit());
+    rcc.apb1rstr().modify(|_, w| w.tim2rst().clear_bit());
 
-    // Задаем период таймера (1 секунда)
-    syst.set_reload(8_000_000); // 8 MHz для простоты, настраиваем на 1 секунду
-    syst.enable_counter();
-    syst.enable_interrupt();
+    // Настройка таймера
+    tim2.psc().write(|w| unsafe { w.psc().bits(72 - 1) }); // Предделитель
+    tim2.arr().write(|w| unsafe { w.arr().bits(1000 - 1) }); // Автоперезагрузка
+
+    // Настройка канала 1 для PWM
+    tim2.ccmr1_output().modify(|_, w| unsafe {
+        w.oc1m().bits(0b110) // PWM mode 1
+         .oc1pe().set_bit()
+    });
+    tim2.ccer().modify(|_, w| w.cc1e().set_bit()); // Включение канала 1
+
+    // Устанавливаем duty cycle на 50%
+    tim2.ccr1().write(|w| unsafe { w.bits(500) });
+
+    // Включение таймера
+    tim2.cr1().modify(|_, w| w.cen().set_bit());
 
     loop {
-        // Ждем срабатывания таймера
-        while !syst.has_wrapped() {}
-
-        // Переключаем состояние светодиода
-        gpioc.odr().modify(|r, w| w.odr13().bit(!r.odr13().bit()));
+        // Основной цикл
     }
 }
