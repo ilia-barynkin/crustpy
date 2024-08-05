@@ -6,8 +6,7 @@ use panic_halt as _;
 
 use stm32f103::Peripherals;
 
-#[entry]
-fn main() -> ! {
+fn setup_pwm(prescaler: u16, arr: u16) {
     let dp = Peripherals::take().unwrap();
 
     // Настройка тактирования
@@ -30,8 +29,8 @@ fn main() -> ! {
     rcc.apb1rstr().modify(|_, w| w.tim2rst().clear_bit());
 
     // Настройка таймера
-    tim2.psc().write(|w| unsafe { w.psc().bits(72 - 1) }); // Предделитель
-    tim2.arr().write(|w| unsafe { w.arr().bits(1000 - 1) }); // Автоперезагрузка
+    tim2.psc().write(|w| unsafe { w.psc().bits(prescaler - 1) }); // Предделитель
+    tim2.arr().write(|w| unsafe { w.arr().bits(arr - 1) }); // Автоперезагрузка
 
     // Настройка канала 1 для PWM
     tim2.ccmr1_output().modify(|_, w| unsafe {
@@ -45,6 +44,14 @@ fn main() -> ! {
 
     // Включение таймера
     tim2.cr1().modify(|_, w| w.cen().set_bit());
+}
+
+#[entry]
+fn main() -> ! {
+    let mut prescaler : u16 = 72;
+    let mut arr : u16 = 1000;
+    
+    setup_pwm(prescaler, arr);
 
     loop {
         // Основной цикл

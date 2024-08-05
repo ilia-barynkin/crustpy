@@ -18,7 +18,11 @@
                 "/usr/share/openocd/scripts"
             ],
             "svdFile": "${workspaceRoot}/svd/STM32F103.svd",
-            "runToEntryPoint": "main"
+            "runToEntryPoint": "main",
+            "liveWatch": {
+                "enabled": true,
+                "samplesPerSecond": 4
+            }
         }
     ]
 }
